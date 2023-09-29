@@ -94,7 +94,7 @@ pub struct ConnectionFields {
 
 /// Creates a new Relay-compliant connection. Iterator must implement `ExactSizeIterator` to
 /// determine page position in the total result set.
-pub async fn query<T: async_graphql::OutputType, I: ExactSizeIterator<Item = T>>(
+pub async fn paginate<T: async_graphql::OutputType, I: ExactSizeIterator<Item = T>>(
     iter: I,
     p: Params,
     default_page_size: usize,

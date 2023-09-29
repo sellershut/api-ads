@@ -69,4 +69,3 @@ fn main() {
         .customize_callback(GenSerde)
         .run_from_script();
 }
-
