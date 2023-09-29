@@ -1,3 +1,6 @@
+mod obsrv;
+
 fn main() {
-    println!("Hello, world!");
+    let _guard = obsrv::initialise();
+    tracing::warn!("Hello, world!");
 }
