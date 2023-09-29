@@ -6,4 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+api-core = { version = "0.1.0", path = "../api-core" }
 api-db = { version = "0.1.0", path = "../api-db" }
+async-graphql = { version = "6.0.7", default-features = false, features = ["tracing", "opentelemetry", "playground", "uuid"] }
+base64 = "0.21.4"
+tracing = "0.1.37"
