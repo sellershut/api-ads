@@ -1,5 +1,4 @@
-use sentry::{ClientOptions, IntoDsn};
-use sentry_tracing::EventFilter;
+use sentry::{integrations::tracing::EventFilter, ClientOptions, IntoDsn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
@@ -9,7 +8,7 @@ pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
         ..Default::default()
     });
 
-    let sentry_layer = sentry_tracing::layer().event_filter(|md| match md.level() {
+    let sentry_layer = sentry::integrations::tracing::layer().event_filter(|md| match md.level() {
         &tracing::Level::ERROR | &tracing::Level::WARN => EventFilter::Event,
         _ => EventFilter::Ignore,
     });

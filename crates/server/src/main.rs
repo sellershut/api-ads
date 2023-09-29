@@ -5,7 +5,7 @@ fn main() -> anyhow::Result<()> {
 
     let _guard = obsrv::initialise()?;
 
-    tracing::warn!("Hello, world!");
+    tracing::error!("start");
 
     Ok(())
 }
