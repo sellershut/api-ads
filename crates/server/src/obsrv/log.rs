@@ -13,13 +13,10 @@ use sentry::{integrations::tracing::EventFilter, ClientOptions, IntoDsn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
-    let unwrap = |variable: &str| {
-        std::env::var(variable)
-            .ok()
-            .and_then(|f| if f.trim().is_empty() { None } else { Some(f) })
-    };
-    let dsn = unwrap("SENTRY_DSN").context("[ENV] SENTRY_DSN is missing")?;
-    let exporter = unwrap("OTLP_EXPORTER").context("[ENV] OTLP_EXPORTER is missing")?;
+    let dsn =
+        api_utils::unwrap_env_variable("SENTRY_DSN").context("[ENV] SENTRY_DSN is missing")?;
+    let exporter = api_utils::unwrap_env_variable("OTLP_EXPORTER")
+        .context("[ENV] OTLP_EXPORTER is missing")?;
 
     let guard: sentry::ClientInitGuard = sentry::init(ClientOptions {
         dsn: dsn.into_dsn()?,

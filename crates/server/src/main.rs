@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 
+use anyhow::Context;
 use axum::{routing::get, Router};
 use tracing::info;
 
@@ -14,7 +15,10 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new().route("/", get(handler));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let port = api_utils::unwrap_env_variable("PORT").context("[ENV] PORT is missing")?;
+    let port = port.parse()?;
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
     info!("listening on {addr}");
 

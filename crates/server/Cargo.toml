@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 api-interface = { version = "0.1.0", path = "../api-interface" }
+api-utils = { version = "0.1.0", path = "../api-utils" }
 axum = "0.6.20"
 dotenvy = "0.15.7"
 opentelemetry = { version = "0.20.0", features = ["rt-tokio"] }

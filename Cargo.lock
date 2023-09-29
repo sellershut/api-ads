@@ -51,6 +51,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "api-utils"
+version = "0.1.0"
+
+[[package]]
 name = "async-trait"
 version = "0.1.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1112,6 +1116,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "api-interface",
+ "api-utils",
  "axum",
  "dotenvy",
  "opentelemetry",
