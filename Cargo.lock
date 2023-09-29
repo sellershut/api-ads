@@ -33,6 +33,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
+name = "api-core"
+version = "0.1.0"
+
+[[package]]
+name = "api-db"
+version = "0.1.0"
+dependencies = [
+ "api-core",
+]
+
+[[package]]
+name = "api-interface"
+version = "0.1.0"
+dependencies = [
+ "api-db",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -797,6 +815,7 @@ name = "server-ads"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "api-interface",
  "dotenvy",
  "sentry",
  "tracing",
