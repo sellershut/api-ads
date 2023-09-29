@@ -1,16 +1,14 @@
+pub use async_graphql::http as async_graphql_extras;
+use async_graphql::{extensions::Tracing, EmptyMutation, EmptySubscription, Schema};
+
+use self::query::Query;
+
 pub(crate) mod query;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+pub type GraphQLSchema = Schema<Query, EmptyMutation, EmptySubscription>;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn create_schema() -> GraphQLSchema {
+    Schema::build(Query::default(), EmptyMutation, EmptySubscription)
+        .extension(Tracing)
+        .finish()
 }

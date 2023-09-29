@@ -1,11 +1,15 @@
 use std::net::SocketAddr;
 
 use anyhow::Context;
-use axum::{routing::get, Router};
+use api_interface::create_schema;
+use axum::{routing::get, Extension, Router};
 use tracing::info;
+
+use crate::routes::{graphql_handler, graphql_playground};
 
 mod io;
 mod obsrv;
+mod routes;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -13,7 +17,11 @@ async fn main() -> anyhow::Result<()> {
 
     let _guard = obsrv::initialise()?;
 
-    let app = Router::new().route("/", get(handler));
+    let schema = create_schema();
+
+    let app = Router::new()
+        .route("/", get(graphql_playground).post(graphql_handler))
+        .layer(Extension(schema));
 
     let port = api_utils::unwrap_env_variable("PORT").context("[ENV] PORT is missing")?;
     let port = port.parse()?;
