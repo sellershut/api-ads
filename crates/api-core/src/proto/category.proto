@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message Category {
+    string id = 1;
+    string name = 2;
+    optional string parent_id = 3;
+    optional string image_url = 4;
+}
