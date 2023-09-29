@@ -2,10 +2,10 @@ use sentry::{ClientOptions, IntoDsn};
 use sentry_tracing::EventFilter;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-pub fn start_tracing() -> sentry::ClientInitGuard {
-    let _guard: sentry::ClientInitGuard = sentry::init(ClientOptions {
-        dsn: "".into_dsn().unwrap(),
-
+pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
+    let dsn = std::env::var("SENTRY_DSN")?;
+    let guard: sentry::ClientInitGuard = sentry::init(ClientOptions {
+        dsn: dsn.into_dsn()?,
         ..Default::default()
     });
 
@@ -23,7 +23,7 @@ pub fn start_tracing() -> sentry::ClientInitGuard {
         .with(sentry_layer)
         .init();
 
-    tracing::error!("Hmm");
+    tracing::trace!("tracing is live");
 
-    _guard
+    Ok(guard)
 }
