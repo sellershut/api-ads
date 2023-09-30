@@ -1,4 +1,4 @@
-use api_core::category::Category;
+use api_core::{category::Category, engine::mutation::category::Mutation};
 use api_db::DatabaseConnection;
 use async_graphql::{Context, Object};
 
@@ -11,9 +11,12 @@ impl CategoryMutation {
         &self,
         ctx: &Context<'_>,
         input: Category,
-    ) -> async_graphql::Result<Vec<Category>> {
+    ) -> async_graphql::Result<Category> {
         let database = ctx.data::<DatabaseConnection>()?;
 
-        todo!()
+        database
+            .create_category(input)
+            .await
+            .map_err(async_graphql::Error::from)
     }
 }
