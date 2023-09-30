@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 
 use anyhow::Context;
 use api_interface::create_schema;
+use async_graphql_axum::GraphQLSubscription;
 use axum::{routing::get, Extension, Router};
 use tracing::info;
 
@@ -21,6 +22,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/", get(graphql_playground).post(graphql_handler))
+        .route_service("/ws", GraphQLSubscription::new(schema.clone()))
         .layer(Extension(schema));
 
     let port = api_utils::unwrap_env_variable("PORT").context("[ENV] PORT is missing")?;
