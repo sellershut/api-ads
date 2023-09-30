@@ -9,26 +9,12 @@ fn main() {
     struct GenSerde;
 
     impl CustomizeCallback for GenSerde {
-        fn message(&self, message: &MessageDescriptor) -> Customize {
+        fn message(&self, _message: &MessageDescriptor) -> Customize {
             #[cfg(not(feature = "async-graphql"))]
             return Customize::default().before("#[derive(::serde::Serialize, ::serde::Deserialize)] #[serde(rename_all = \"camelCase\")]");
 
             #[cfg(feature = "async-graphql")]
-            {
-                let derives = format!("#[derive(::serde::Serialize, ::serde::Deserialize, ::async_graphql::{}Object)] #[serde(rename_all = \"camelCase\")]", match message.name() {
-                    "CategoryInput" => {
-                      "Input"
-                    },
-                    "Category" => {
-                      "Simple"
-                    },
-                    _ => {
-                      unreachable!("check your proto message names")
-                    }
-                });
-
-                Customize::default().before(&derives)
-            }
+            Customize::default().before("#[derive(::serde::Serialize, ::serde::Deserialize, ::async_graphql::SimpleObject, ::async_graphql::InputObject)] #[serde(rename_all = \"camelCase\")] #[graphql(input_name = \"CategoryInput\")]")
         }
 
         #[cfg(not(feature = "async-graphql"))]
@@ -48,8 +34,10 @@ fn main() {
                 // `EnumOrUnknown` is not a part of rust-protobuf, so external serializer is needed.
                 Customize::default().before(
                     "#[serde(serialize_with = \"crate::serialize_enum_or_unknown\", deserialize_with = \"crate::deserialize_enum_or_unknown\")] #[graphql(skip_input)]")
-            } else {
+            } else if field.name() == "id" {
                 Customize::default().before("#[graphql(skip_input)]")
+            } else {
+                Customize::default()
             }
         }
 
