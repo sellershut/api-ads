@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
 
     let _guard = obsrv::initialise()?;
 
-    let schema = create_schema();
+    let schema = create_schema().await?;
 
     let app = Router::new()
         .route("/", get(graphql_playground).post(graphql_handler))
