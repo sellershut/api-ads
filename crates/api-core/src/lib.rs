@@ -1,3 +1,5 @@
+pub mod engine;
+
 use std::{fmt::Formatter, marker::PhantomData};
 
 use protobuf::{EnumFull, EnumOrUnknown};

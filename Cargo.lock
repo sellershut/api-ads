@@ -99,6 +99,7 @@ name = "api-core"
 version = "0.1.0"
 dependencies = [
  "async-graphql",
+ "async-trait",
  "protobuf",
  "protobuf-codegen",
  "serde",

@@ -37,8 +37,3 @@ async fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-#[tracing::instrument]
-async fn handler() -> &'static str {
-    "hello"
-}
