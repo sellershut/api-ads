@@ -33,4 +33,49 @@ impl CategoryMutation {
             }
         }
     }
+
+    async fn update_category(
+        &self,
+        ctx: &Context<'_>,
+        id: String,
+        input: Category,
+    ) -> async_graphql::Result<Category> {
+        let database = ctx.data::<DatabaseConnection>()?;
+
+        match database.update_category(&id, input).await {
+            Ok(val) => {
+                SimpleBroker::publish(CategoryChanged {
+                    mutation_type: MutationType::Updated,
+                    id: val.id.clone().into(),
+                });
+                Ok(val)
+            }
+            Err(e) => {
+                error!("{e}");
+                Err(e.into())
+            }
+        }
+    }
+
+    async fn delete_category(
+        &self,
+        ctx: &Context<'_>,
+        id: String,
+    ) -> async_graphql::Result<String> {
+        let database = ctx.data::<DatabaseConnection>()?;
+
+        match database.delete_category(&id).await {
+            Ok(val) => {
+                SimpleBroker::publish(CategoryChanged {
+                    mutation_type: MutationType::Deleted,
+                    id: val.into(),
+                });
+                Ok(id)
+            }
+            Err(e) => {
+                error!("{e}");
+                Err(e.into())
+            }
+        }
+    }
 }
