@@ -1,16 +1,9 @@
 use api_core::{category::Category, engine::query::category};
 use async_trait::async_trait;
-use lazy_static::lazy_static;
 
 use crate::DatabaseConnection;
 
-fn map_err(err: impl ToString) -> String {
-    err.to_string()
-}
-
-lazy_static! {
-    static ref CATEGORY_COLLECTION: &'static str = "category";
-}
+use super::{map_err, CATEGORY_COLLECTION};
 
 #[async_trait]
 impl category::Query for DatabaseConnection {

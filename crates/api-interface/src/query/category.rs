@@ -33,4 +33,13 @@ impl CategoryQuery {
             .await
             .map_err(async_graphql::Error::from)
     }
+
+    async fn sub_categories(&self, ctx: &Context<'_>, id: Option<String>) -> Result<Vec<Category>> {
+        let database = ctx.data::<DatabaseConnection>()?;
+
+        database
+            .get_sub_categories(id.as_deref())
+            .await
+            .map_err(async_graphql::Error::from)
+    }
 }
