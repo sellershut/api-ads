@@ -1,3 +1,4 @@
+pub mod driver;
 pub mod errors;
 
 use surrealdb::{

@@ -1,4 +1,5 @@
-use api_core::category::Category;
+use api_core::{category::Category, engine::query::category::Query};
+use api_db::DatabaseConnection;
 use async_graphql::{Context, Object};
 
 use super::{relay::paginate, ConnectionResult, Params};
@@ -16,8 +17,11 @@ impl CategoryQuery {
         first: Option<i32>,
         last: Option<i32>,
     ) -> ConnectionResult<Category> {
-        let items = vec![];
+        let database = ctx.data::<DatabaseConnection>()?;
+
+        let categories = database.get_categories().await?;
+
         let p = Params::new(after, before, first, last);
-        paginate(items.into_iter(), p, 100).await
+        paginate(categories.into_iter(), p, 100).await
     }
 }

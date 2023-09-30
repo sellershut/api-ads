@@ -112,6 +112,8 @@ version = "0.1.0"
 dependencies = [
  "api-core",
  "api-utils",
+ "async-trait",
+ "lazy_static",
  "surrealdb",
  "thiserror",
  "tracing",
