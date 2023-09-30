@@ -114,6 +114,7 @@ dependencies = [
  "api-utils",
  "async-trait",
  "lazy_static",
+ "serde",
  "surrealdb",
  "thiserror",
  "tracing",

@@ -1,4 +1,4 @@
-use api_core::{category::Category, engine::query::category::Query};
+use api_core::category::Category;
 use api_db::DatabaseConnection;
 use async_graphql::{Context, Object, Result};
 
@@ -22,7 +22,7 @@ impl CategoryQuery {
         let categories = database.get_categories().await?;
 
         let p = Params::new(after, before, first, last);
-        paginate(categories.into_iter(), p, 100).await
+        paginate(categories, p, 100).await
     }
 
     async fn category_by_id(&self, ctx: &Context<'_>, id: String) -> Result<Option<Category>> {
@@ -34,12 +34,23 @@ impl CategoryQuery {
             .map_err(async_graphql::Error::from)
     }
 
-    async fn sub_categories(&self, ctx: &Context<'_>, id: Option<String>) -> Result<Vec<Category>> {
+    async fn sub_categories(
+        &self,
+        ctx: &Context<'_>,
+        id: Option<String>,
+        after: Option<String>,
+        before: Option<String>,
+        first: Option<i32>,
+        last: Option<i32>,
+    ) -> ConnectionResult<Category> {
         let database = ctx.data::<DatabaseConnection>()?;
 
-        database
+        let categories = database
             .get_sub_categories(id.as_deref())
             .await
-            .map_err(async_graphql::Error::from)
+            .map_err(async_graphql::Error::from)?;
+
+        let p = Params::new(after, before, first, last);
+        paginate(categories, p, 100).await
     }
 }

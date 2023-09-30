@@ -7,11 +7,10 @@ pub mod category {
 
     #[async_trait]
     pub trait Query {
-        async fn get_categories(&self) -> Result<Vec<Category>, String>;
-        async fn get_sub_categories(
-            &self,
-            parent_id: Option<&str>,
-        ) -> Result<Vec<Category>, String>;
+        type Iter: ExactSizeIterator<Item = Category>;
+
+        async fn get_categories(&self) -> Result<Self::Iter, String>;
+        async fn get_sub_categories(&self, parent_id: Option<&str>) -> Result<Self::Iter, String>;
         async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String>;
     }
 }
