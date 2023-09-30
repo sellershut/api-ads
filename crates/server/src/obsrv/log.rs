@@ -46,7 +46,7 @@ pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "server_ads=debug".into()),
+                .unwrap_or_else(|_| "server_ads=debug,api_db=debug,api_interface=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .with(sentry_layer)

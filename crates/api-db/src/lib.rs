@@ -44,7 +44,7 @@ impl DatabaseConnection {
     fn read_env(var: &str) -> String {
         trace!("[ENV] reading variable");
         let cb = || {
-            error!("variable is missing or empty");
+            error!(var = var, "variable is missing or empty");
         };
         api_utils::unwrap_env_variable(var)
             .or_else(|| {
