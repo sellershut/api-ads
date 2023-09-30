@@ -20,7 +20,7 @@ impl category::Query for DatabaseConnection {
             .await
             .map_err(map_err)
     }
-    async fn get_category_by_id(&self, id: &str) -> Result<Category, String> {
+    async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String> {
         // check redis and set redis if unavailable
         todo!()
     }

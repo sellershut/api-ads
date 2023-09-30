@@ -12,6 +12,6 @@ pub mod category {
             &self,
             parent_id: Option<&str>,
         ) -> Result<Vec<Category>, String>;
-        async fn get_category_by_id(&self, id: &str) -> Result<Category, String>;
+        async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String>;
     }
 }
