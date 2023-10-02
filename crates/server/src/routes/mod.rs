@@ -4,12 +4,12 @@ use api_interface::{
 };
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
+    extract::State,
     response::{Html, IntoResponse},
-    Extension,
 };
 
 pub(crate) async fn graphql_handler(
-    schema: Extension<GraphQLSchema>,
+    schema: State<GraphQLSchema>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()

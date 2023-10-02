@@ -1,14 +1,15 @@
-use api_core::category::Category;
-use surrealdb::sql::Thing;
-
+pub(crate) mod cache_keys;
 pub mod mutation;
 pub mod query;
+
+use api_core::category::Category;
+use surrealdb::sql::Thing;
 
 lazy_static::lazy_static! {
     static ref CATEGORY_COLLECTION: &'static str = "category";
 }
 
-fn map_err(err: impl ToString) -> String {
+pub(crate) fn map_err(err: impl ToString) -> String {
     err.to_string()
 }
 

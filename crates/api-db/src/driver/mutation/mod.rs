@@ -12,7 +12,7 @@ use super::{map_err, CATEGORY_COLLECTION};
 impl category::Mutation for DatabaseConnection {
     async fn create_category(&self, content: Category) -> Result<Category, String> {
         let item: Vec<Category> = self
-            .database
+            .surreal
             .create(*CATEGORY_COLLECTION)
             .content(content)
             .await
@@ -27,7 +27,7 @@ impl category::Mutation for DatabaseConnection {
             Thing::from_str(id).map_err(|_| "could not convert id to internal type".to_string())?;
 
         let item: Option<Category> = self
-            .database
+            .surreal
             .update(id)
             .content(content)
             .await
@@ -41,7 +41,7 @@ impl category::Mutation for DatabaseConnection {
         let id_thing =
             Thing::from_str(id).map_err(|_| "could not convert id to internal type".to_string())?;
 
-        let item: Option<Category> = self.database.delete(id_thing).await.map_err(map_err)?;
+        let item: Option<Category> = self.surreal.delete(id_thing).await.map_err(map_err)?;
         if let Some(_item) = item {
             Ok(id)
         } else {
