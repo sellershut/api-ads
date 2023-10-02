@@ -15,6 +15,7 @@ use self::errors::DatabaseError;
 pub struct DatabaseConnection {
     surreal: Surreal<Client>,
     redis: Pool<RedisMultiplexedConnectionManager>,
+    cache_ttl: usize,
 }
 
 impl DatabaseConnection {
@@ -23,7 +24,20 @@ impl DatabaseConnection {
         trace!("establishing database connection from env");
         let (surreal, redis) =
             futures_util::try_join!(Self::create_db_conn(), Self::create_redis_pool())?;
-        Ok(Self { surreal, redis })
+
+        let cache_ttl = std::env::var("CACHE_TTL")
+            .ok()
+            .and_then(|f| f.parse().ok())
+            .unwrap_or_else(|| {
+                tracing::error!("[ENV] could not parse CACHE_TTL");
+                300
+            });
+
+        Ok(Self {
+            surreal,
+            redis,
+            cache_ttl,
+        })
     }
 
     async fn create_db_conn() -> Result<Surreal<Client>, DatabaseError> {

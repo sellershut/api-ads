@@ -49,11 +49,12 @@ impl DatabaseConnection {
                 let data: Vec<Category> = item.by_ref().collect();
 
                 let redis_conn = self.redis.clone();
+                let ex = self.cache_ttl;
                 let fut = async move {
                     let mut conn = redis_conn.get().await.map_err(map_err).unwrap();
                     if let Ok(data) = bincode::serialize(&data) {
                         let redis: Result<(), redis::RedisError> =
-                            conn.set_ex(cache_key, data, 300).await;
+                            conn.set_ex(cache_key, data, ex).await;
                         if let Err(e) = redis {
                             tracing::error!("{e}");
                         }
