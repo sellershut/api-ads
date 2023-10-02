@@ -6,34 +6,40 @@ use surrealdb::sql::Thing;
 
 use crate::DatabaseConnection;
 
-use super::{map_err, CATEGORY_COLLECTION};
+use super::{
+    cache_keys::CacheKey, map_err, redis::redis_del, InternalCategory, CATEGORY_COLLECTION,
+};
 
 #[async_trait]
 impl category::Mutation for DatabaseConnection {
     async fn create_category(&self, content: Category) -> Result<Category, String> {
-        let item: Vec<Category> = self
+        let item: Vec<InternalCategory> = self
             .surreal
             .create(*CATEGORY_COLLECTION)
             .content(content)
             .await
             .map_err(map_err)?;
 
-        let item = item.into_iter().nth(0);
+        let item = item.into_iter().nth(0).map(Category::from);
         item.ok_or("Could not get query result".into())
     }
 
     async fn update_category(&self, id: &str, content: Category) -> Result<Category, String> {
-        let id =
+        let id_internal =
             Thing::from_str(id).map_err(|_| "could not convert id to internal type".to_string())?;
 
-        let item: Option<Category> = self
+        let item: Option<InternalCategory> = self
             .surreal
-            .update(id)
+            .update(id_internal)
             .content(content)
             .await
             .map_err(map_err)?;
 
-        let item = item.into_iter().nth(0);
+        let item = item.into_iter().nth(0).map(Category::from);
+        if let Some(ref _item) = item {
+            redis_del(CacheKey::Category { id }.to_string(), self.redis.clone()).await;
+        }
+
         item.ok_or("Could not get query result".into())
     }
 
@@ -41,7 +47,8 @@ impl category::Mutation for DatabaseConnection {
         let id_thing =
             Thing::from_str(id).map_err(|_| "could not convert id to internal type".to_string())?;
 
-        let item: Option<Category> = self.surreal.delete(id_thing).await.map_err(map_err)?;
+        let item: Option<InternalCategory> =
+            self.surreal.delete(id_thing).await.map_err(map_err)?;
         if let Some(_item) = item {
             Ok(id)
         } else {

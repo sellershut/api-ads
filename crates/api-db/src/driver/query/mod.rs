@@ -51,7 +51,14 @@ impl DatabaseConnection {
 
                 let ex = self.cache_ttl;
 
-                redis_set(data, ex, cache_key, self.redis.clone()).await;
+                match bincode::serialize(&data) {
+                    Ok(data) => {
+                        redis_set(data, ex, cache_key, self.redis.clone()).await;
+                    }
+                    Err(e) => {
+                        tracing::error!("{e}");
+                    }
+                }
 
                 Ok(Either::Right(item))
             }
@@ -140,8 +147,14 @@ impl DatabaseConnection {
                 let data: Vec<Category> = item.by_ref().collect();
 
                 let ex = self.cache_ttl;
-
-                redis_set(data, ex, cache_key, self.redis.clone()).await;
+                match bincode::serialize(&data) {
+                    Ok(data) => {
+                        redis_set(data, ex, cache_key, self.redis.clone()).await;
+                    }
+                    Err(e) => {
+                        tracing::error!("{e}");
+                    }
+                }
 
                 Ok(Either::Right(item))
             }
