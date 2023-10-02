@@ -3,6 +3,7 @@ use itertools::Either;
 use redis::AsyncCommands;
 use std::str::FromStr;
 use surrealdb::sql::Thing;
+use tracing::Instrument;
 
 use crate::DatabaseConnection;
 
@@ -45,12 +46,28 @@ impl DatabaseConnection {
 
                 let mut item = items.into_iter().map(Category::from);
 
+                let data: Vec<Category> = item.by_ref().collect();
+
+                let redis_conn = self.redis.clone();
+                let fut = async move {
+                    let mut conn = redis_conn.get().await.map_err(map_err).unwrap();
+                    if let Ok(data) = bincode::serialize(&data) {
+                        let redis: Result<(), redis::RedisError> =
+                            conn.set_ex(cache_key, data, 300).await;
+                        if let Err(e) = redis {
+                            tracing::error!("{e}");
+                        }
+                    }
+                }
+                .instrument(tracing::debug_span!("redis.set"));
+
                 #[cfg(feature = "tokio")]
                 {
-                    let data: Vec<Category> = item.by_ref().collect();
-                    let data = bincode::serialize(&data).unwrap();
-                    let _: () = redis_conn.set_ex(cache_key, data, 300).await.unwrap();
+                    tokio::spawn(fut);
                 }
+
+                #[cfg(not(feature = "tokio"))]
+                fut.await;
 
                 Ok(Either::Right(item))
             }
