@@ -1,4 +1,4 @@
-use api_core::category::Category;
+use api_core::{category::Category, ProtobufMessage};
 use itertools::Either;
 use redis::AsyncCommands;
 use std::str::FromStr;
@@ -62,21 +62,27 @@ impl DatabaseConnection {
         let cache_key = CacheKey::Category { id }.to_string();
 
         match self.validate_cache(&cache_key).await {
-            Ok(bytes) => bincode::deserialize(&bytes).map_err(map_err),
+            Ok(bytes) => {
+                let category = Category::parse_from_bytes(&bytes).map_err(map_err)?;
+                Ok(Some(category))
+            }
             Err(e) => {
                 tracing::warn!("{e}");
                 let id_internal = Thing::from_str(id)
                     .map_err(|_| map_err(format!("id {id} could not be parsed")))?;
 
-                let category = self.surreal.select(id_internal).await.map_err(map_err);
+                let category: Option<InternalCategory> =
+                    self.surreal.select(id_internal).await.map_err(map_err)?;
 
-                let category_inner = category.clone();
-
-                let ex = self.cache_ttl;
-
-                redis_set(category_inner, ex, cache_key, self.redis.clone()).await;
-
-                category
+                if let Some(category) = category {
+                    let category = Category::from(category);
+                    let bytes = category.write_to_bytes().map_err(map_err)?;
+                    let ex = self.cache_ttl;
+                    redis_set(bytes, ex, cache_key, self.redis.clone()).await;
+                    Ok(Some(category))
+                } else {
+                    Ok(None)
+                }
             }
         }
     }

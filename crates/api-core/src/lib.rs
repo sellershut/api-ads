@@ -2,6 +2,7 @@ pub mod engine;
 
 use std::{fmt::Formatter, marker::PhantomData};
 
+pub use protobuf::Message as ProtobufMessage;
 use protobuf::{EnumFull, EnumOrUnknown};
 
 include!(concat!(env!("OUT_DIR"), "/protos/mod.rs"));
