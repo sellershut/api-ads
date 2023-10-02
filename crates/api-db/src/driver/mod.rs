@@ -1,6 +1,7 @@
 pub(crate) mod cache_keys;
 pub mod mutation;
 pub mod query;
+pub(crate) mod redis;
 
 use api_core::category::Category;
 use surrealdb::sql::Thing;
@@ -10,7 +11,7 @@ lazy_static::lazy_static! {
 }
 
 pub(crate) fn map_err(err: impl ToString) -> String {
-    err.to_string()
+    crate::log_error!(err.to_string())
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -31,4 +32,13 @@ impl From<InternalCategory> for Category {
             ..Default::default()
         }
     }
+}
+
+#[macro_export]
+macro_rules! log_error {
+    ($x: expr) => {{
+        let msg = format!("{}", $x);
+        tracing::error!("{msg}");
+        msg
+    }};
 }
