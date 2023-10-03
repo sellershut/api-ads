@@ -15,8 +15,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
     let dsn =
         api_utils::unwrap_env_variable("SENTRY_DSN").context("[ENV] SENTRY_DSN is missing")?;
-    let exporter = api_utils::unwrap_env_variable("OTLP_EXPORTER")
-        .context("[ENV] OTLP_EXPORTER is missing")?;
+    let otlp_collector = api_utils::unwrap_env_variable("OTLP_COLLECTOR")
+        .context("[ENV] OTLP_COLLECTOR is missing")?;
 
     let guard: sentry::ClientInitGuard = sentry::init(ClientOptions {
         dsn: dsn.into_dsn()?,
@@ -33,7 +33,7 @@ pub fn start_tracing() -> anyhow::Result<sentry::ClientInitGuard> {
         .with_exporter(
             opentelemetry_otlp::new_exporter()
                 .tonic()
-                .with_endpoint(exporter)
+                .with_endpoint(otlp_collector)
                 .with_timeout(Duration::from_secs(3)),
         )
         .with_trace_config(trace::config().with_resource(Resource::new([
