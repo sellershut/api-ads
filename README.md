@@ -1,25 +1,38 @@
-Opentelemetry:
+<div style="display: flex; flex-direction: column; align-items: center;">
+   <h1>SellersHut API: Ads</h1>
+   <div>
+     <img alt="GitHub Workflow Status (with event)" src="https://img.shields.io/github/actions/workflow/status/sellershut/api-ads/test.yaml?label=tests">
+     <a href="https://codecov.io/gh/sellershut/api-ads" > 
+       <img src="https://codecov.io/gh/sellershut/api-ads/graph/badge.svg"/> 
+     </a>
+     <img alt="GitHub" src="https://img.shields.io/github/license/sellershut/api-ads"/>
+   </div>
+</div>
 
+## Features
+
+- #### GraphQL
+	- Queries, mutations, subscriptions
+- #### Distributed Tracing w/ OpenTelemetry
+	- Sentry integration for `error` level logs
+
+## Building
+
+#### Sentry
+
+You can self-host Sentry, follow their [Developer Documentation](https://develop.sentry.dev/self-hosted/) on how to get started. You need the `SENTRY_DSN` variable in your environment. 
+
+#### Opentelemetry
+
+Follow [Jaeger's](https://www.jaegertracing.io/) documentation on [deployment](https://www.jaegertracing.io/docs/1.49/deployment/) and set `OTLP_COLLECTOR` to where your collector is hosted.
+
+#### Redis
+
+The API uses caching through the Redis SDK:
 ```sh
-docker run --rm --name jaeger \
-  -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
-  -p 6831:6831/udp \
-  -p 6832:6832/udp \
-  -p 5778:5778 \
-  -p 16686:16686 \
-  -p 4317:4317 \
-  -p 4318:4318 \
-  -p 14250:14250 \
-  -p 14268:14268 \
-  -p 14269:14269 \
-  -p 9411:9411 \
-  jaegertracing/all-in-one:latest
+docker run --network=host --ulimit memlock=-1 docker.dragonflydb.io/dragonflydb/dragonfly
 ```
-And set `OTLP_EXPORTER` to localhost:4317
+> [!NOTE]  
+> [Dragonfly](https://www.dragonflydb.io) works as well since it's a drop-in replacement!
 
-Sentry:
-
-Download the latest release on https://github.com/getsentry/self-hosted
-Follow instructions to get started
-
-Get DSN from Setting > Projects > Internal > Client Keys and set it as `SENTRY_DSN` variable.
+Lastly, check your [environment](.env.example) and make sure everything is populated accordingly
