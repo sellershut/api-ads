@@ -1,4 +1,4 @@
-<div style="display: flex; flex-direction: column; align-items: center;">
+<div align="center">
    <h1>SellersHut API: Ads</h1>
    <div>
      <img alt="GitHub Workflow Status (with event)" src="https://img.shields.io/github/actions/workflow/status/sellershut/api-ads/test.yaml?label=tests">
