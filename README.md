@@ -6,6 +6,7 @@
        <img src="https://codecov.io/gh/sellershut/api-ads/graph/badge.svg"/> 
      </a>
      <img alt="GitHub" src="https://img.shields.io/github/license/sellershut/api-ads"/>
+     <img alt="GitHub Workflow Status (with event)" src="https://img.shields.io/github/actions/workflow/status/sellershut/api-ads/ci.yaml?color=%230099ff">
    </div>
 </div>
 
