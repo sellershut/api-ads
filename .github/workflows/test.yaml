@@ -28,6 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     name: ubuntu / stable / coverage
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
         with:
