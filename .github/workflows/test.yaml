@@ -18,6 +18,8 @@ jobs:
           submodules: true
       - name: Install Protoc
         uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo generate-lockfile
@@ -35,6 +37,8 @@ jobs:
           submodules: true
       - name: Install Protoc
         uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
         with:
