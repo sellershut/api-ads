@@ -1,4 +1,4 @@
-use api_core::category::Category;
+use api_core::{category::Category, engine::query::category::Query};
 use api_db::DatabaseConnection;
 use async_graphql::{Context, Object, Result};
 

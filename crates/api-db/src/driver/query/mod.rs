@@ -1,5 +1,5 @@
-use api_core::{category::Category, ProtobufMessage};
-use itertools::Either;
+use api_core::{category::Category, engine::query::category::Query, ProtobufMessage};
+use async_trait::async_trait;
 use redis::AsyncCommands;
 use std::str::FromStr;
 use surrealdb::sql::Thing;
@@ -8,33 +8,32 @@ use crate::{driver::redis::redis_set, DatabaseConnection};
 
 use super::{cache_keys::CacheKey, map_err, InternalCategory, CATEGORY_COLLECTION};
 
-impl DatabaseConnection {
-    async fn validate_cache(&self, cache_key: &str) -> Result<Vec<u8>, String> {
-        let mut redis_conn = self.redis.get().await.map_err(map_err)?;
-        redis_conn
-            .get::<_, Vec<u8>>(cache_key)
-            .await
-            .map_err(map_err)
-            .and_then(|f| {
-                if f.is_empty() {
-                    Err("empty cache".to_string())
-                } else {
-                    Ok(f)
-                }
-            })
-    }
-    pub async fn get_categories(
+async fn validate_cache(database: &DatabaseConnection, cache_key: &str) -> Result<Vec<u8>, String> {
+    let mut redis_conn = database.redis.get().await.map_err(map_err)?;
+    redis_conn
+        .get::<_, Vec<u8>>(cache_key)
+        .await
+        .map_err(map_err)
+        .and_then(|f| {
+            if f.is_empty() {
+                Err("empty cache".to_string())
+            } else {
+                Ok(f)
+            }
+        })
+}
+
+#[async_trait]
+impl Query for DatabaseConnection {
+    async fn get_categories(
         &self,
-    ) -> Result<
-        Either<impl ExactSizeIterator<Item = Category>, impl ExactSizeIterator<Item = Category>>,
-        String,
-    > {
+    ) -> Result<Box<dyn ExactSizeIterator<Item = Category> + Send + Sync>, String> {
         let cache_key = CacheKey::AllCategories.to_string();
 
-        match self.validate_cache(&cache_key).await {
+        match validate_cache(self, &cache_key).await {
             Ok(ref val) => {
                 let cache_data: Vec<Category> = bincode::deserialize(val).map_err(map_err)?;
-                Ok(Either::Left(cache_data.into_iter()))
+                Ok(Box::new(cache_data.into_iter()))
             }
 
             Err(e) => {
@@ -60,15 +59,15 @@ impl DatabaseConnection {
                     }
                 }
 
-                Ok(Either::Right(item))
+                Ok(Box::new(item))
             }
         }
     }
 
-    pub async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String> {
+    async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String> {
         let cache_key = CacheKey::Category { id }.to_string();
 
-        match self.validate_cache(&cache_key).await {
+        match validate_cache(self, &cache_key).await {
             Ok(bytes) => {
                 let category = Category::parse_from_bytes(&bytes).map_err(map_err)?;
                 Ok(Some(category))
@@ -94,22 +93,19 @@ impl DatabaseConnection {
         }
     }
 
-    pub async fn get_sub_categories(
+    async fn get_sub_categories<'a>(
         &self,
-        parent_id: Option<&str>,
-    ) -> Result<
-        Either<impl ExactSizeIterator<Item = Category>, impl ExactSizeIterator<Item = Category>>,
-        String,
-    > {
+        parent_id: Option<&'a str>,
+    ) -> Result<Box<dyn ExactSizeIterator<Item = Category> + Send + Sync>, String> {
         let cache_key = CacheKey::SubCategories {
             parent: parent_id.unwrap_or_default(),
         }
         .to_string();
 
-        match self.validate_cache(&cache_key).await {
+        match validate_cache(self, &cache_key).await {
             Ok(ref val) => {
                 let cache_data: Vec<Category> = bincode::deserialize(val).map_err(map_err)?;
-                Ok(Either::Left(cache_data.into_iter()))
+                Ok(Box::new(cache_data.into_iter()))
             }
 
             Err(e) => {
@@ -156,7 +152,7 @@ impl DatabaseConnection {
                     }
                 }
 
-                Ok(Either::Right(item))
+                Ok(Box::new(item))
             }
         }
     }

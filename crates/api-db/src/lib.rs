@@ -93,3 +93,6 @@ impl DatabaseConnection {
             .expect("variable is missing")
     }
 }
+
+#[cfg(test)]
+mod tests;

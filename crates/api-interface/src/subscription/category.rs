@@ -1,4 +1,4 @@
-use api_core::category::Category;
+use api_core::{category::Category, engine::query::category::Query};
 use std::time::Duration;
 
 use api_db::DatabaseConnection;

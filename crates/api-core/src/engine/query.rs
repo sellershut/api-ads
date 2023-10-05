@@ -7,10 +7,13 @@ pub mod category {
 
     #[async_trait]
     pub trait Query {
-        type Iter: ExactSizeIterator<Item = Category>;
-
-        async fn get_categories(&self) -> Result<Self::Iter, String>;
-        async fn get_sub_categories(&self, parent_id: Option<&str>) -> Result<Self::Iter, String>;
+        async fn get_categories(
+            &self,
+        ) -> Result<Box<dyn ExactSizeIterator<Item = Category> + Send + Sync>, String>;
+        async fn get_sub_categories<'a>(
+            &self,
+            parent_id: Option<&'a str>,
+        ) -> Result<Box<dyn ExactSizeIterator<Item = Category> + Send + Sync>, String>;
         async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String>;
     }
 }
