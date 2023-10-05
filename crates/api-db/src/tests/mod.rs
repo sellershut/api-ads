@@ -12,3 +12,21 @@ mock! {
         async fn get_category_by_id(&self, id: &str) -> Result<Option<Category>, String>;
     }
 }
+
+async fn check(input: &[Category]) {
+    let mut mock = MockDatabaseConnection::new();
+    mock.expect_get_categories()
+        .returning(|| Ok(Box::new(vec![].into_iter())));
+
+    let result = mock.get_categories().await;
+
+    assert!(result.is_ok());
+
+    assert_eq!(result.unwrap().count(), input.len());
+}
+
+#[tokio::test]
+async fn get_categories() {
+    let items: Vec<Category> = vec![];
+    check(&items).await;
+}
