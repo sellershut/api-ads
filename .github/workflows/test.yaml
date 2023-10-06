@@ -30,8 +30,30 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
+      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      DATABASE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
+      REDIS_HOST: ${{ secrets.TEST_REDIS_HOST }}
+      REDIS_PORT: 6379
+      DATABASE_NAME: ${{ secrets.TEST_DATABASE_NAME }}
+      DATABASE_NAMESPACE: ${{ secrets.TEST_DATABASE_NAMESPACE }}
     name: ubuntu / stable / coverage
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
     steps:
+      - name: setup surreal
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://install.surrealdb.com | sh
+          surreal start --log trace --auth --user $DATABASE_USERNAME --pass $DATABASE_PASSWORD memory &
       - uses: actions/checkout@v3
         with:
           submodules: true

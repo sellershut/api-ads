@@ -12,5 +12,5 @@ comment:
   layout: "files"
   require_changes: yes
 
-    #ignore:
-    #  - "**/tests"
+ignore:
+  - "**/tests"
