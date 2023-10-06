@@ -22,6 +22,23 @@ struct InternalCategory {
     image_url: Option<String>,
 }
 
+#[derive(Debug, serde::Serialize)]
+struct InsertCategory {
+    name: String,
+    parent_id: Option<String>,
+    image_url: Option<String>,
+}
+
+impl From<Category> for InsertCategory {
+    fn from(mut value: Category) -> Self {
+        Self {
+            name: std::mem::take(&mut value.name),
+            parent_id: std::mem::take(&mut value.parent_id),
+            image_url: std::mem::take(&mut value.image_url),
+        }
+    }
+}
+
 impl From<InternalCategory> for Category {
     fn from(mut value: InternalCategory) -> Self {
         Self {

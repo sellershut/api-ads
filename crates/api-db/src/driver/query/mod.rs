@@ -59,7 +59,7 @@ impl Query for DatabaseConnection {
                     }
                 }
 
-                Ok(Box::new(item))
+                Ok(Box::new(data.into_iter()))
             }
         }
     }
@@ -114,7 +114,7 @@ impl Query for DatabaseConnection {
                 let mut resp = self
                     .surreal
                     .query(format!(
-                        "SELECT * FROM {} WHERE parent_id {}",
+                        "SELECT * FROM {} WHERE parent_id={}",
                         *CATEGORY_COLLECTION,
                         if let Some(id) = parent_id {
                             self.surreal
@@ -128,9 +128,9 @@ impl Query for DatabaseConnection {
                                 )
                                 .await
                                 .map_err(map_err)?;
-                            "= $parent_id"
+                            "$parent_id"
                         } else {
-                            "IS null"
+                            "NONE"
                         }
                     ))
                     .await
@@ -152,7 +152,7 @@ impl Query for DatabaseConnection {
                     }
                 }
 
-                Ok(Box::new(item))
+                Ok(Box::new(data.into_iter()))
             }
         }
     }
