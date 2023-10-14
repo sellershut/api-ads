@@ -42,10 +42,8 @@ impl DatabaseConnection {
 
     async fn create_db_conn() -> Result<Surreal<Client>, DatabaseError> {
         let address = Self::read_env("DATABASE_URL");
-        let namespace = Self::read_env("DATABASE_NAMESPACE");
         let username = Self::read_env("DATABASE_USERNAME");
         let password = Self::read_env("DATABASE_PASSWORD");
-        let database = Self::read_env("DATABASE_NAME");
 
         trace!("environment locked and loaded. connecting...");
 
@@ -61,7 +59,11 @@ impl DatabaseConnection {
         db.use_ns("tests").use_db("testdb").await?;
 
         #[cfg(not(test))]
-        db.use_ns(&namespace).use_db(&database).await?;
+        {
+            let namespace = Self::read_env("DATABASE_NAMESPACE");
+            let database = Self::read_env("DATABASE_NAME");
+            db.use_ns(&namespace).use_db(&database).await?;
+        }
 
         info!(address = address, user = username, "database connected");
         Ok(db)
