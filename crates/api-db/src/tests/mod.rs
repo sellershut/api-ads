@@ -25,13 +25,14 @@ async fn mutation() -> Result<(), Box<dyn std::error::Error>> {
     let name = "Foo";
 
     category.name = name.to_owned();
+    category.is_root = true;
 
     let mutation_result = conn.create_category(category).await?;
 
     let id = &mutation_result.id;
 
     assert_eq!(&mutation_result.name, name);
-    assert_eq!(mutation_result.parent_id, None);
+    assert!(mutation_result.sub_categories.is_empty());
     assert_eq!(mutation_result.image_url, None);
 
     let mut category = Category::new();
