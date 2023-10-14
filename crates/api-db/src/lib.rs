@@ -57,7 +57,12 @@ impl DatabaseConnection {
         })
         .await?;
 
+        #[cfg(test)]
+        db.use_ns("tests").use_db("testdb").await?;
+
+        #[cfg(not(test))]
         db.use_ns(&namespace).use_db(&database).await?;
+
         info!(address = address, user = username, "database connected");
         Ok(db)
     }

@@ -110,36 +110,19 @@ impl Query for DatabaseConnection {
 
             Err(e) => {
                 tracing::warn!(cache_key = %cache_key, "{e}");
-
                 let mut resp = self
                     .surreal
-                    .query(format!(
-                        "SELECT * FROM {} WHERE parent_id={}",
-                        *CATEGORY_COLLECTION,
-                        if let Some(id) = parent_id {
-                            self.surreal
-                                .set(
-                                    "parent_id",
-                                    if let Some(last) = id.split(':').last() {
-                                        last
-                                    } else {
-                                        id
-                                    },
-                                )
-                                .await
-                                .map_err(map_err)?;
-                            "$parent_id"
-                        } else {
-                            "NONE"
-                        }
-                    ))
+                    .query(if let Some(parent) = parent_id {
+                        format!("SELECT sub_categories.*.* FROM {parent};")
+                    } else {
+                        format!("SELECT * FROM {} WHERE is_root=true", *CATEGORY_COLLECTION)
+                    })
                     .await
                     .map_err(map_err)?;
 
                 let items: Vec<InternalCategory> = resp.take(0).map_err(map_err)?;
 
                 let mut item = items.into_iter().map(Category::from);
-
                 let data: Vec<Category> = item.by_ref().collect();
 
                 let ex = self.cache_ttl;

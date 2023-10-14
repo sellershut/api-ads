@@ -29,3 +29,6 @@ pub async fn create_schema() -> Result<GraphQLSchema, SchemaError> {
     #[cfg(debug_assertions)]
     return Ok(schema.finish());
 }
+
+#[cfg(test)]
+mod tests;

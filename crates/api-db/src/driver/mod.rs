@@ -18,23 +18,26 @@ pub(crate) fn map_err(err: impl ToString) -> String {
 struct InternalCategory {
     id: Thing, //need to convert thing to string before we send it
     name: String,
-    parent_id: Option<String>,
+    sub_categories: Vec<Thing>,
     image_url: Option<String>,
+    is_root: bool,
 }
 
 #[derive(Debug, serde::Serialize)]
 struct InsertCategory {
     name: String,
-    parent_id: Option<String>,
+    sub_categories: Vec<String>,
     image_url: Option<String>,
+    is_root: bool,
 }
 
 impl From<Category> for InsertCategory {
     fn from(mut value: Category) -> Self {
         Self {
             name: std::mem::take(&mut value.name),
-            parent_id: std::mem::take(&mut value.parent_id),
+            sub_categories: std::mem::take(&mut value.sub_categories),
             image_url: std::mem::take(&mut value.image_url),
+            is_root: value.is_root,
         }
     }
 }
@@ -44,8 +47,14 @@ impl From<InternalCategory> for Category {
         Self {
             id: value.id.to_string(),
             name: std::mem::take(&mut value.name),
-            parent_id: std::mem::take(&mut value.parent_id),
+            sub_categories: {
+                std::mem::take(&mut value.sub_categories)
+                    .iter()
+                    .map(|val| val.id.to_string())
+                    .collect::<Vec<_>>()
+            },
             image_url: std::mem::take(&mut value.image_url),
+            is_root: value.is_root,
             ..Default::default()
         }
     }
