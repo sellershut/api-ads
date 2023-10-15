@@ -43,7 +43,6 @@ impl Query for DatabaseConnection {
                     .select(*CATEGORY_COLLECTION)
                     .await
                     .map_err(map_err)?;
-                println!("Here");
 
                 let mut item = items.into_iter().map(Category::from);
 
