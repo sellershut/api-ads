@@ -33,17 +33,20 @@ async fn mutation() -> Result<(), Box<dyn std::error::Error>> {
 
     assert_eq!(&mutation_result.name, name);
     assert!(mutation_result.sub_categories.is_empty());
+    assert!(mutation_result.is_root);
     assert_eq!(mutation_result.image_url, None);
 
     let mut category = Category::new();
 
     let name = "Bar";
     category.name = name.to_string();
+    category.is_root = true;
 
     let update_result = conn.update_category(id, category).await?;
 
     assert_eq!(&update_result.id, id);
     assert_eq!(&update_result.name, name);
+    assert!(mutation_result.is_root);
 
     let query = conn.get_category_by_id(id).await?.unwrap();
 
