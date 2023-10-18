@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 fn bench(c: &mut Criterion) {
     dotenvy::dotenv().ok();
@@ -6,7 +6,7 @@ fn bench(c: &mut Criterion) {
     let schema = rt.block_on(api_interface::create_schema()).unwrap();
     let size = 100;
     let query = |method: &str, count: u16| {
-        format!(
+        black_box(format!(
             "
                    query {{
                        {method}(first: {count}) {{
@@ -26,7 +26,7 @@ fn bench(c: &mut Criterion) {
                      }}
                    }}
                 "
-        )
+        ))
     };
 
     c.bench_with_input(BenchmarkId::new("categories", size), &size, |b, &s| {
