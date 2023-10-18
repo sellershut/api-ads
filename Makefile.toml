@@ -24,3 +24,8 @@ dependencies = ["clean"]
 workspace = false
 command = "cargo"
 args = [ "watch", "-c", "-x run" ]
+
+[tasks.bench]
+workspace = false
+command = "cargo"
+args = [ "bench" ]
