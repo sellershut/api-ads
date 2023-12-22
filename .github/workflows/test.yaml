@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Install Protoc
@@ -54,7 +54,7 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://install.surrealdb.com | sh
           surreal start --log trace --auth --user $DATABASE_USERNAME --pass $DATABASE_PASSWORD memory &
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Install Protoc
