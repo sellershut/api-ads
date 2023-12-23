@@ -22,7 +22,7 @@ tracing = "0.1.40"
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["async_tokio"] }
 dotenvy = "0.15.7"
-fake = "2.8.0"
+fake = "2.9.2"
 tokio = "1.32.0"
 
 [[bench]]
